@@ -34,20 +34,25 @@ jobs:
           
           # Verbindung zum Server und sicherstellen, dass das Verzeichnis vorhanden ist
           ssh -v -i labsuser.pem -o StrictHostKeyChecking=no ubuntu@54.91.140.187 << 'EOF'  
+            sudo docker exec -it blissful_brahmagupta /bin/bash
+            cd /usr/local/apache2/htdocs
+            git pull 
+            
+            
             # Sicherstellen, dass das Verzeichnis existiert
-            sudo mkdir -p /var/www/html
+            # sudo mkdir -p /var/www/html
 
             # Überprüfen, ob das Verzeichnis ein Git-Repository ist
-            cd /var/www/html || exit 1
-            if [ ! -d ".git" ]; then
-              # Wenn es kein Git-Repository ist, dann Repository klonen
-              sudo git clone https://github.com/deinbenutzername/deinrepository.git .
-            fi
+            # cd /var/www/html || exit 1
+            # if [ ! -d ".git" ]; then
+            #   # Wenn es kein Git-Repository ist, dann Repository klonen
+            #   sudo git clone https://github.com/deinbenutzername/deinrepository.git .
+            # fi
 
             # Git Pull vom 'main' Branch
-            sudo git reset --hard
-            sudo git pull origin main  # Pull vom 'main' Branch
-            sudo chmod -R 777 /var/www/html  # Setze die richtigen Berechtigungen
+            # sudo git reset --hard
+            # sudo git pull origin main  # Pull vom 'main' Branch
+            # sudo chmod -R 777 /var/www/html  # Setze die richtigen Berechtigungen
           EOF
           
           # SSH Key löschen
