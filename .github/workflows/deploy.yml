@@ -32,12 +32,22 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > labsuser.pem
           chmod 600 labsuser.pem  # Sicherstellen, dass der Schlüssel die richtigen Berechtigungen hat
           
-          # Git-Pull direkt auf dem Server ausführen
-          ssh -v -i labsuser.pem -o StrictHostKeyChecking=no ubuntu@54.91.140.187 << 'EOF'  # Hier musst du die öffentliche IP-Adresse deiner EC2-Instanz anpassen
-            cd /var/www/html  # Zielverzeichnis auf dem Server
-            git reset --hard  # Falls es Änderungen gibt
-            git pull origin main  # Pull vom 'main' Branch
-            sudo chmod -R 777 /var/www/html  # Setze die richtigen Berechtigungen (optional, sicherer wäre eine restriktivere Berechtigung)
+          # Verbindung zum Server und sicherstellen, dass das Verzeichnis vorhanden ist
+          ssh -v -i labsuser.pem -o StrictHostKeyChecking=no ubuntu@54.91.140.187 << 'EOF'  
+            # Sicherstellen, dass das Verzeichnis existiert
+            sudo mkdir -p /var/www/html
+
+            # Überprüfen, ob das Verzeichnis ein Git-Repository ist
+            cd /var/www/html || exit 1
+            if [ ! -d ".git" ]; then
+              # Wenn es kein Git-Repository ist, dann Repository klonen
+              sudo git clone https://github.com/deinbenutzername/deinrepository.git .
+            fi
+
+            # Git Pull vom 'main' Branch
+            sudo git reset --hard
+            sudo git pull origin main  # Pull vom 'main' Branch
+            sudo chmod -R 777 /var/www/html  # Setze die richtigen Berechtigungen
           EOF
           
           # SSH Key löschen
