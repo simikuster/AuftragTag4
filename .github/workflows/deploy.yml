@@ -32,10 +32,6 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > labsuser.pem
           chmod 600 labsuser.pem  # Sicherstellen, dass der Schlüssel die richtigen Berechtigungen hat
           
-          # Debug-Ausgabe des privaten Schlüssels (optional)
-          echo "Inhalt des SSH-Schlüssels:"
-          cat labsuser.pem
-          
           # Git-Pull direkt auf dem Server ausführen
           ssh -v -i labsuser.pem -o StrictHostKeyChecking=no ubuntu@54.91.140.187 << 'EOF'  # Hier musst du die öffentliche IP-Adresse deiner EC2-Instanz anpassen
             cd /var/www/html  # Zielverzeichnis auf dem Server
