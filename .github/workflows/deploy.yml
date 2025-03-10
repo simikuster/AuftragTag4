@@ -36,9 +36,13 @@ jobs:
           ssh -i labsuser.pem -o StrictHostKeyChecking=no ubuntu@54.91.140.187 << 'EOF'  
             
             cd ~
-            sudo docker exec -it blissful_brahmagupta /bin/bash
-            cd /usr/local/apache2/htdocs
-            git pull 
+            # Docker exec ohne -it, weil es keine interaktive Sitzung ist
+            sudo docker exec blissful_brahmagupta bash -c "
+              # Überprüfen des Verzeichnisses
+              cd /usr/local/apache2/htdocs
+              # Git Pull
+              git pull
+            " 
             
             
             # Sicherstellen, dass das Verzeichnis existiert
