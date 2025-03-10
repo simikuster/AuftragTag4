@@ -1,0 +1,49 @@
+name: Deploy PHP HTML Site
+
+on:
+  push:
+    branches:
+      - main  # Der Branch, auf dem der Code gepusht wird (main)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # Der GitHub-Runner verwendet Ubuntu
+
+    steps:
+      # Schritt 1: Repository auschecken
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Schritt 2: Website-Dateien hochladen
+      - name: Upload Website Files
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: .  # Das gesamte Repository hochladen
+
+      # Schritt 3: Website-Dateien herunterladen
+      - name: Download Website Files
+        uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: .
+
+      # Schritt 4: Auf den Server deployen
+      - name: Deploy to Server
+        env:
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # SSH-Private-Key Secret verwenden
+        run: |
+          # SSH Key speichern
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > labsuser.pem
+          chmod 600 labsuser.pem  # Sicherstellen, dass der Schlüssel die richtigen Berechtigungen hat
+          
+          # Git-Pull direkt auf dem Server ausführen
+          ssh -i labsuser.pem -o StrictHostKeyChecking=no ubuntu@54.91.140.187 << 'EOF'  # Hier musst du die öffentliche IP-Adresse deiner EC2-Instanz anpassen
+            cd /var/www/html  # Zielverzeichnis auf dem Server
+            git reset --hard  # Falls es Änderungen gibt
+            git pull origin main  # Pull vom 'main' Branch
+            sudo chmod -R 777 /var/www/html  # Setze die richtigen Berechtigungen (optional, sicherer wäre eine restriktivere Berechtigung)
+          EOF
+          
+          # SSH Key löschen
+          rm labsuser.pem
